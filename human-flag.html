@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Human Flag">
+<title>Human Flag</title>
+<style>
+  :root {
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --teal-light: #E1F5EE;
+    --teal-dark: #0F6E56;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --coral-light: #FAECE7;
+    --coral-dark: #712B13;
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeede9;
+    --text: #1a1a18;
+    --text2: #6b6a65;
+    --text3: #9e9d98;
+    --border: rgba(0,0,0,0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1e;
+      --bg2: #2c2c2e;
+      --bg3: #3a3a3c;
+      --text: #f2f2f0;
+      --text2: #aeaead;
+      --text3: #6e6e6a;
+      --border: rgba(255,255,255,0.1);
+      --purple-light: #26215C;
+      --purple-dark: #CECBF6;
+      --teal-light: #04342C;
+      --teal-dark: #9FE1CB;
+      --amber-light: #412402;
+      --amber-dark: #FAC775;
+      --coral-light: #4A1B0C;
+      --coral-dark: #F5C4B3;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  .screen { display: none; flex-direction: column; min-height: 100vh; min-height: -webkit-fill-available; }
+  .screen.active { display: flex; }
+
+  /* HOME SCREEN */
+  .home { padding: 48px 24px 32px; align-items: center; justify-content: center; text-align: center; }
+  .home-icon {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: var(--purple-light); display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px; font-size: 36px;
+  }
+  .home h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .home p { font-size: 15px; color: var(--text2); line-height: 1.5; margin-bottom: 32px; }
+  .phase-list { width: 100%; margin-bottom: 32px; }
+  .phase-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 0.5px solid var(--border);
+  }
+  .phase-row:last-child { border-bottom: none; }
+  .phase-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .phase-row-name { font-size: 14px; font-weight: 500; flex: 1; text-align: left; }
+  .phase-row-time { font-size: 13px; color: var(--text2); }
+  .btn-start {
+    width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
+    background: var(--purple); color: #fff; border: none;
+    border-radius: var(--radius); cursor: pointer; letter-spacing: 0.2px;
+  }
+  .btn-start:active { opacity: 0.85; transform: scale(0.98); }
+
+  /* TRAINING SCREEN */
+  .training { padding: 0; }
+  .nav-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 52px 16px 12px;
+    border-bottom: 0.5px solid var(--border);
+    background: var(--bg);
+  }
+  .btn-back {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--bg2); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text); flex-shrink: 0;
+  }
+  .nav-phase-pill {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; letter-spacing: 0.3px;
+  }
+  .nav-title { font-size: 14px; font-weight: 500; flex: 1; }
+  .nav-count { font-size: 12px; color: var(--text3); }
+  .progress-bar { height: 3px; background: var(--bg3); }
+  .progress-fill { height: 3px; background: var(--purple); transition: width 0.4s; }
+  .content { flex: 1; padding: 16px; overflow-y: auto; }
+  .ex-card {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+  }
+  .ex-num { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .ex-name { font-size: 20px; font-weight: 600; line-height: 1.2; margin-bottom: 8px; }
+  .ex-sets {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+    background: var(--bg2); color: var(--text2);
+    margin-bottom: 10px;
+  }
+  .ex-detail { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .timer-box {
+    margin-top: 14px; padding: 14px;
+    background: var(--bg2); border-radius: var(--radius-sm);
+  }
+  .timer-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .timer-num {
+    font-size: 38px; font-weight: 700; color: var(--purple);
+    font-variant-numeric: tabular-nums; min-width: 80px; letter-spacing: -1px;
+  }
+  .timer-meta { flex: 1; }
+  .timer-meta-label { font-size: 11px; color: var(--text3); }
+  .timer-meta-target { font-size: 13px; color: var(--text2); margin-top: 1px; }
+  .timer-actions { display: flex; gap: 8px; }
+  .btn-timer {
+    flex: 1; padding: 10px; font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--purple);
+    cursor: pointer; background: transparent; color: var(--purple);
+  }
+  .btn-timer.go { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .btn-timer:active { opacity: 0.8; }
+  .rest-box {
+    margin: 12px 0; padding: 16px;
+    background: var(--bg2); border-radius: var(--radius);
+    text-align: center;
+  }
+  .rest-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .rest-num {
+    font-size: 48px; font-weight: 700; color: var(--purple);
+    font-variant-numeric: tabular-nums; letter-spacing: -2px;
+  }
+  .rest-sub { font-size: 13px; color: var(--text2); margin-top: 4px; margin-bottom: 12px; }
+  .btn-skip {
+    padding: 8px 20px; font-size: 13px; font-weight: 600;
+    background: transparent; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text2); cursor: pointer;
+  }
+  .tip-box {
+    padding: 12px 14px; margin-bottom: 12px;
+    border-left: 3px solid var(--purple);
+    background: var(--purple-light);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 13px; color: var(--purple-dark); line-height: 1.6;
+  }
+  .bottom-bar {
+    padding: 12px 16px 32px;
+    border-top: 0.5px solid var(--border);
+    background: var(--bg);
+    display: flex; gap: 10px;
+  }
+  .btn-prev {
+    width: 48px; height: 52px; border-radius: var(--radius-sm);
+    background: var(--bg2); border: none; cursor: pointer;
+    font-size: 18px; color: var(--text2); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-prev:active { opacity: 0.7; }
+  .btn-next {
+    flex: 1; padding: 14px; font-size: 15px; font-weight: 600;
+    background: var(--purple); color: #fff; border: none;
+    border-radius: var(--radius-sm); cursor: pointer;
+  }
+  .btn-next:active { opacity: 0.85; transform: scale(0.98); }
+
+  /* DONE SCREEN */
+  .done { align-items: center; justify-content: center; text-align: center; padding: 32px 24px; }
+  .done-trophy { font-size: 64px; margin-bottom: 16px; }
+  .done h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .done p { font-size: 15px; color: var(--text2); line-height: 1.6; margin-bottom: 28px; }
+  .done-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    width: 100%; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg2); border-radius: var(--radius-sm);
+    padding: 14px; text-align: center;
+  }
+  .stat-num { font-size: 24px; font-weight: 700; color: var(--purple); }
+  .stat-label { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .btn-restart {
+    width: 100%; padding: 16px; font-size: 15px; font-weight: 600;
+    background: var(--purple); color: #fff; border: none;
+    border-radius: var(--radius); cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home">
+    <div class="home-icon">🚩</div>
+    <h1>Human Flag</h1>
+    <p>Piano di allenamento completo — 38 minuti per costruire la Flag.</p>
+    <div class="phase-list" id="phase-list"></div>
+    <button class="btn-start" onclick="startTraining()">Inizia allenamento</button>
+  </div>
+</div>
+
+<!-- TRAINING -->
+<div class="screen" id="screen-training">
+  <div class="nav-header">
+    <button class="btn-back" onclick="goHome()" aria-label="Torna alla home">←</button>
+    <span class="nav-phase-pill" id="nav-pill"></span>
+    <span class="nav-title" id="nav-title"></span>
+    <span class="nav-count" id="nav-count"></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="content" id="content"></div>
+  <div class="bottom-bar">
+    <button class="btn-prev" id="btn-prev" onclick="prevEx()" aria-label="Esercizio precedente">←</button>
+    <button class="btn-next" id="btn-next" onclick="nextEx()">Avanti</button>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="screen" id="screen-done">
+  <div class="done">
+    <div class="done-trophy">🏆</div>
+    <h2>Allenamento completato!</h2>
+    <p>Ottimo lavoro. Idratati e tieni d'occhio la spalla nelle prossime ore.</p>
+    <div class="done-stats">
+      <div class="stat-card"><div class="stat-num" id="done-excount">0</div><div class="stat-label">Esercizi</div></div>
+      <div class="stat-card"><div class="stat-num">38</div><div class="stat-label">Minuti</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Fasi</div></div>
+      <div class="stat-card"><div class="stat-num" id="done-date"></div><div class="stat-label">Data</div></div>
+    </div>
+    <button class="btn-restart" onclick="restartTraining()">Rifai allenamento</button>
+  </div>
+</div>
+
+<script>
+const phases = [
+  {
+    label: "Riscaldamento", dot: "#1D9E75",
+    pillBg: "#E1F5EE", pillColor: "#0F6E56",
+    duration: "7 min",
+    exercises: [
+      { name: "Rotazioni delle spalle", sets: "2 × 10", detail: "Cerchi lenti avanti e indietro, poi arm circles incrociati. Senti ogni angolo della capsula." },
+      { name: "Scapular wall slides", sets: "2 × 8", detail: "Schiena al muro, gomiti 90°. Sali e scendi mantenendo tutto il contatto. Lento e controllato." },
+      { name: "Band pull-apart", sets: "2 × 12", detail: "Braccia tese davanti, apri ai lati. Trattieni 1 sec. Trapezio medio che si accende." },
+      { name: "Rotazione toracica in quadrupedia", sets: "5 per lato", detail: "Mano dietro la nuca, apri il gomito verso il soffitto. Mobilizza il dorsale." },
+      { name: "Dead hang attivo", sets: "3 × 8 sec", detail: "Appeso alla sbarra: attiva la depressione scapolare. Spalle giù dall'orecchio. Rilascia. Ripeti.", timer: 8 },
+    ],
+    tip: "La spalla sinistra deve essere calda e attivata prima di ogni tentativo di Flag."
+  },
+  {
+    label: "Parte principale", dot: "#7F77DD",
+    pillBg: "#EEEDFE", pillColor: "#3C3489",
+    duration: "18 min",
+    exercises: [
+      { name: "Scapular dips", sets: "4 × 10", detail: "Alle parallele, braccia tese. Solo scapole: sali (elevazione) poi spingi giù (depressione). Zero gomiti." },
+      { name: "Scapular pull-up", sets: "3 × 8", detail: "Appeso, braccia tese. Tira giù le scapole senza piegare i gomiti. Il corpo sale di pochi cm." },
+      { name: "Side plank scapolare", sets: "3 × 20 sec / lato", detail: "Sul gomito. Spingi attivamente la spalla verso il basso per tutta la durata.", timer: 20 },
+      { name: "Tuck flag hold", sets: "5 × 4–6 sec", detail: "Entrambe le ginocchia al petto. Scapola sinistra depressa e fissa. Riposo 3 min tra hold.", timer: 5, rest: 180 },
+      { name: "One-leg flag", sets: "4 × 3–5 sec", detail: "Una gamba tesa, una rannicchiata. La tua progressione attuale. Qualità > durata. Max 4 tentativi.", timer: 4, rest: 180 },
+      { name: "Flag negative", sets: "3 × discesa lenta", detail: "Parti in Flag (anche assistita), scendi in 5–8 secondi. Costruisce forza eccentrica.", timer: 7 },
+    ],
+    tip: "Riposa davvero 2–3 minuti tra gli hold. La stanchezza neuromuscolare causa la contrattura."
+  },
+  {
+    label: "Accessori", dot: "#BA7517",
+    pillBg: "#FAEEDA", pillColor: "#633806",
+    duration: "8 min",
+    exercises: [
+      { name: "Serratus press al muro", sets: "3 × 12", detail: "Mani sul muro, braccia quasi tese. Spingi e senti le scapole aprirsi in fuori (protrazione)." },
+      { name: "Prone Y-T-W", sets: "2 × 8 per lettera", detail: "A pancia in giù, braccia nelle 3 posizioni: Y, T, W. Senza peso o 1 kg max." },
+      { name: "Ring support hold", sets: "3 × 15 sec", detail: "Agli anelli, braccia tese. Depressione scapolare attiva per tutta la durata.", timer: 15 },
+    ],
+    tip: "Questi costruiscono la base che renderà la Flag stabile nei prossimi mesi."
+  },
+  {
+    label: "Cool down", dot: "#D85A30",
+    pillBg: "#FAECE7", pillColor: "#712B13",
+    duration: "5 min",
+    exercises: [
+      { name: "Stretching trapezio sinistro", sets: "2 × 30 sec", detail: "Testa inclinata verso destra, mano destra che aiuta delicatamente. Respira nella tensione.", timer: 30 },
+      { name: "Cross-body stretch", sets: "2 × 30 sec / lato", detail: "Braccio davanti al petto, mano opposta che spinge il gomito verso di te.", timer: 30 },
+      { name: "Foam roller dorsale", sets: "2 min", detail: "Lentamente sulla zona toracica e sulle scapole.", timer: 120 },
+      { name: "Respirazione e rilascio", sets: "1 min", detail: "Seduto, occhi chiusi. 4 respiri profondi. Sistema nervoso che si calma.", timer: 60 },
+    ],
+    tip: "Se senti la contrattura iniziare, fai subito lo stretching del trapezio."
+  }
+];
+
+let phaseIdx = 0, exIdx = 0;
+let timerSec = 0, timerRunning = false, timerInterval = null;
+let restSec = 0, restRunning = false, restInterval = null;
+let showRest = false;
+let sessionStart = null;
+
+function totalEx() { return phases.reduce((a,p) => a + p.exercises.length, 0); }
+function doneExCount() {
+  let n = 0;
+  for (let i = 0; i < phaseIdx; i++) n += phases[i].exercises.length;
+  return n + exIdx;
+}
+
+function pad(n) { return String(Math.round(n)).padStart(2,"0"); }
+function fmt(s) { return pad(Math.floor(s/60)) + ":" + pad(s % 60); }
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+function buildHome() {
+  const list = document.getElementById("phase-list");
+  list.innerHTML = phases.map(p => `
+    <div class="phase-row">
+      <div class="phase-dot" style="background:${p.dot}"></div>
+      <div class="phase-row-name">${p.label}</div>
+      <div class="phase-row-time">${p.duration}</div>
+    </div>
+  `).join("");
+}
+
+function startTraining() {
+  phaseIdx = 0; exIdx = 0;
+  timerSec = 0; timerRunning = false; showRest = false;
+  clearInterval(timerInterval); clearInterval(restInterval);
+  sessionStart = new Date();
+  showScreen("training");
+  renderTraining();
+}
+
+function goHome() {
+  clearInterval(timerInterval); clearInterval(restInterval);
+  showScreen("home");
+}
+
+function restartTraining() {
+  showScreen("home");
+}
+
+function startTimerFor(sec) {
+  clearInterval(timerInterval);
+  timerSec = sec; timerRunning = false;
+}
+
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    updateTimerUI();
+  } else {
+    timerRunning = true;
+    timerInterval = setInterval(() => {
+      if (timerSec > 0) {
+        timerSec--;
+        const d = document.getElementById("t-display");
+        if (d) d.textContent = fmt(timerSec);
+      } else {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        const d = document.getElementById("t-display");
+        if (d) d.textContent = "Fine!";
+        const btn = document.getElementById("t-go");
+        if (btn) { btn.textContent = "Fine!"; btn.disabled = true; }
+      }
+    }, 1000);
+    updateTimerUI();
+  }
+}
+
+function resetTimerBtn() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  const ex = phases[phaseIdx].exercises[exIdx];
+  timerSec = ex.timer || 0;
+  const d = document.getElementById("t-display");
+  if (d) d.textContent = fmt(timerSec);
+  updateTimerUI();
+}
+
+function updateTimerUI() {
+  const btn = document.getElementById("t-go");
+  if (btn) {
+    btn.textContent = timerRunning ? "Pausa" : "Avvia";
+    btn.className = timerRunning ? "btn-timer" : "btn-timer go";
+  }
+}
+
+function startRest(sec) {
+  showRest = true; restSec = sec; restRunning = true;
+  clearInterval(restInterval);
+  renderTraining();
+  restInterval = setInterval(() => {
+    if (restSec > 0) {
+      restSec--;
+      const d = document.getElementById("rest-display");
+      if (d) d.textContent = fmt(restSec);
+    } else {
+      clearInterval(restInterval);
+      restRunning = false;
+      skipRest();
+    }
+  }, 1000);
+}
+
+function skipRest() {
+  clearInterval(restInterval);
+  showRest = false; restRunning = false;
+  renderTraining();
+}
+
+function nextEx() {
+  clearInterval(timerInterval); timerRunning = false;
+  const phase = phases[phaseIdx];
+  const ex = phase.exercises[exIdx];
+
+  if (ex.rest && !showRest) {
+    startRest(ex.rest);
+    return;
+  }
+
+  showRest = false;
+  if (exIdx < phase.exercises.length - 1) {
+    exIdx++;
+  } else if (phaseIdx < phases.length - 1) {
+    phaseIdx++; exIdx = 0;
+  } else {
+    finishTraining();
+    return;
+  }
+
+  const nextExercise = phases[phaseIdx].exercises[exIdx];
+  timerSec = nextExercise.timer || 0;
+  renderTraining();
+}
+
+function prevEx() {
+  clearInterval(timerInterval); timerRunning = false;
+  clearInterval(restInterval); showRest = false;
+  if (exIdx > 0) {
+    exIdx--;
+  } else if (phaseIdx > 0) {
+    phaseIdx--;
+    exIdx = phases[phaseIdx].exercises.length - 1;
+  }
+  const ex = phases[phaseIdx].exercises[exIdx];
+  timerSec = ex.timer || 0;
+  renderTraining();
+}
+
+function finishTraining() {
+  document.getElementById("done-excount").textContent = totalEx();
+  const now = new Date();
+  document.getElementById("done-date").textContent =
+    now.getDate() + "/" + (now.getMonth()+1);
+  showScreen("done");
+}
+
+function renderTraining() {
+  const phase = phases[phaseIdx];
+  const ex = phase.exercises[exIdx];
+  const done = doneExCount();
+  const total = totalEx();
+  const pct = Math.round((done / total) * 100);
+  const isLastInPhase = exIdx === phase.exercises.length - 1;
+  const isVeryLast = phaseIdx === phases.length - 1 && isLastInPhase;
+
+  document.getElementById("nav-pill").textContent = phase.label;
+  document.getElementById("nav-pill").style.background = phase.pillBg;
+  document.getElementById("nav-pill").style.color = phase.pillColor;
+  document.getElementById("nav-title").textContent = ex.name.length > 18 ? ex.name.substring(0,18)+"…" : ex.name;
+  document.getElementById("nav-count").textContent = (exIdx+1) + "/" + phase.exercises.length;
+  document.getElementById("prog-fill").style.width = pct + "%";
+
+  document.getElementById("btn-prev").style.display = (phaseIdx === 0 && exIdx === 0) ? "none" : "flex";
+
+  let nextLabel = "Avanti";
+  if (ex.rest && !showRest) nextLabel = "Fatto → Recupero";
+  if (isVeryLast && !ex.rest) nextLabel = "Fine allenamento 🏁";
+  if (isVeryLast && ex.rest && showRest) nextLabel = "Fine allenamento 🏁";
+  document.getElementById("btn-next").textContent = nextLabel;
+
+  let timerHTML = "";
+  if (ex.timer) {
+    const displaySec = timerSec || ex.timer;
+    timerHTML = `
+      <div class="timer-box">
+        <div class="timer-top">
+          <div class="timer-num" id="t-display">${fmt(displaySec)}</div>
+          <div class="timer-meta">
+            <div class="timer-meta-label">Timer</div>
+            <div class="timer-meta-target">${ex.timer} sec target</div>
+          </div>
+        </div>
+        <div class="timer-actions">
+          <button class="btn-timer go" id="t-go" onclick="toggleTimer()">Avvia</button>
+          <button class="btn-timer" onclick="resetTimerBtn()">Reset</button>
+        </div>
+      </div>
+    `;
+  }
+
+  let restHTML = "";
+  if (showRest) {
+    restHTML = `
+      <div class="rest-box">
+        <div class="rest-label">Recupero</div>
+        <div class="rest-num" id="rest-display">${fmt(restSec)}</div>
+        <div class="rest-sub">Rilassati, respira</div>
+        <button class="btn-skip" onclick="skipRest()">Salta recupero</button>
+      </div>
+    `;
+  }
+
+  const showTip = isLastInPhase && phase.tip;
+
+  document.getElementById("content").innerHTML = `
+    <div class="ex-card">
+      <div class="ex-num">Esercizio ${exIdx+1} di ${phase.exercises.length}</div>
+      <div class="ex-name">${ex.name}</div>
+      <span class="ex-sets">${ex.sets}</span>
+      <div class="ex-detail">${ex.detail}</div>
+      ${timerHTML}
+    </div>
+    ${restHTML}
+    ${showTip ? `<div class="tip-box">💡 ${phase.tip}</div>` : ""}
+  `;
+}
+
+buildHome();
+</script>
+</body>
+</html>
