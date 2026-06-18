@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Abs">
+<title>Abs</title>
+<style>
+:root {
+  --blue:        #378ADD;
+  --blue-dark:   #185FA5;
+  --blue-darker: #0C447C;
+  --blue-light:  #E6F1FB;
+  --blue-mid:    #B5D4F4;
+  --bg:          #ffffff;
+  --bg2:         #f5f5f3;
+  --bg3:         #eeede9;
+  --text:        #1a1a18;
+  --text2:       #6b6a65;
+  --text3:       #9e9d98;
+  --border:      rgba(0,0,0,0.10);
+  --radius:      12px;
+  --radius-sm:   8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --blue:        #85B7EB;
+    --blue-dark:   #B5D4F4;
+    --blue-darker: #E6F1FB;
+    --blue-light:  #042C53;
+    --blue-mid:    #0C447C;
+    --bg:          #1c1c1e;
+    --bg2:         #2c2c2e;
+    --bg3:         #3a3a3c;
+    --text:        #f2f2f0;
+    --text2:       #aeaead;
+    --text3:       #6e6e6a;
+    --border:      rgba(255,255,255,0.10);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+.screen { display: none; flex-direction: column; min-height: 100vh; min-height: -webkit-fill-available; }
+.screen.active { display: flex; }
+
+/* HOME */
+.home-header {
+  background: var(--blue-dark);
+  padding: max(env(safe-area-inset-top), 44px) 20px 24px;
+}
+.home-icon { width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px; }
+.home-title { font-size:24px;font-weight:700;color:#fff;margin-bottom:3px; }
+.home-sub   { font-size:13px;color:rgba(255,255,255,0.65);line-height:1.4; }
+
+.level-section { padding:16px 16px 8px; }
+.level-label   { font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:10px; }
+.level-pills   { display:flex;gap:8px; }
+.level-pill    { flex:1;text-align:center;padding:10px 4px;border-radius:20px;border:0.5px solid var(--border);color:var(--text2);background:var(--bg2);cursor:pointer;transition:background 0.15s,color 0.15s,border-color 0.15s; }
+.level-pill.active { background:var(--blue);color:#fff;border-color:var(--blue); }
+.level-pill-name { font-size:12px;font-weight:600;display:block; }
+.level-pill-dur  { font-size:10px;opacity:0.8;display:block;margin-top:1px; }
+.level-meta { font-size:12px;color:var(--text3);text-align:center;padding:8px 0 4px; }
+
+.ex-list-section { padding:4px 16px 8px;flex:1; }
+.section-heading { font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);padding:8px 0 6px; }
+.ex-row { display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border); }
+.ex-row:last-child { border-bottom:none; }
+.ex-row-dot  { width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0; }
+.ex-row-name { font-size:13px;color:var(--text);flex:1; }
+.eq-badge    { font-size:10px;font-weight:500;background:var(--blue-light);color:var(--blue-dark);padding:3px 8px;border-radius:20px;flex-shrink:0; }
+.btn-start   { margin:12px 16px;margin-bottom:max(12px,env(safe-area-inset-bottom));width:calc(100% - 32px);padding:16px;font-size:16px;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);cursor:pointer; }
+.btn-start:active { opacity:0.85;transform:scale(0.98); }
+
+/* TRAINING */
+.nav-header { display:flex;align-items:center;gap:10px;padding:max(env(safe-area-inset-top),44px) 14px 12px;border-bottom:0.5px solid var(--border);background:var(--bg); }
+.btn-back   { width:32px;height:32px;border-radius:50%;background:var(--bg2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text);flex-shrink:0; }
+.nav-pill   { font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:0.3px;background:var(--blue-light);color:var(--blue-dark); }
+.nav-title  { font-size:14px;font-weight:500;flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.nav-count  { font-size:12px;color:var(--text3);flex-shrink:0; }
+.progress-bar  { height:3px;background:var(--bg3); }
+.progress-fill { height:3px;background:var(--blue);transition:width 0.4s ease; }
+
+.content { flex:1;padding:16px;overflow-y:auto; }
+
+/* Exercise illustration */
+.ex-illustration {
+  width:100%;
+  background:var(--blue-light);
+  border-radius:var(--radius) var(--radius) 0 0;
+  overflow:hidden;
+  aspect-ratio:16/9;
+  display:flex;align-items:center;justify-content:center;
+}
+.ex-illustration img {
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+}
+
+.ex-card { background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden; }
+.ex-card-body { padding:18px; }
+.ex-num    { font-size:11px;color:var(--text3);margin-bottom:4px; }
+.ex-name   { font-size:22px;font-weight:700;line-height:1.2;margin-bottom:10px; }
+.ex-badges { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px; }
+.badge     { display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px; }
+.badge-eq   { background:var(--blue-light);color:var(--blue-dark); }
+.badge-sets { background:var(--bg2);color:var(--text2); }
+.ex-detail  { font-size:14px;color:var(--text2);line-height:1.65; }
+
+/* Ring timer */
+.ring-section { margin-top:16px;display:flex;flex-direction:column;align-items:center;padding:16px;background:var(--bg2);border-radius:var(--radius); }
+.ring-wrap    { position:relative;width:120px;height:120px; }
+.ring-wrap svg { position:absolute;top:0;left:0; }
+.ring-inner   { position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+.ring-num     { font-size:34px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1; }
+.ring-sub     { font-size:10px;color:var(--text3);margin-top:2px; }
+.ring-buttons { display:flex;gap:10px;margin-top:14px;width:100%; }
+.btn-ring     { flex:1;padding:11px;font-size:14px;font-weight:600;border-radius:var(--radius-sm);border:1.5px solid var(--blue);background:transparent;color:var(--blue);cursor:pointer; }
+.btn-ring.go  { background:var(--blue);color:#fff; }
+.btn-ring:active { opacity:0.8; }
+
+/* Rest */
+.rest-screen { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px; }
+.rest-label  { font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px; }
+.rest-ring-wrap  { position:relative;width:160px;height:160px;margin-bottom:16px; }
+.rest-ring-wrap svg { position:absolute;top:0;left:0; }
+.rest-ring-inner { position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+.rest-num     { font-size:52px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1; }
+.rest-num-sub { font-size:12px;color:var(--text3);margin-top:3px; }
+.rest-caption { font-size:15px;color:var(--text2);margin-bottom:20px; }
+.rest-next-label { font-size:11px;color:var(--text3);margin-bottom:4px;letter-spacing:0.05em;text-transform:uppercase; }
+.rest-next-name  { font-size:17px;font-weight:600;color:var(--text);margin-bottom:24px; }
+.btn-skip { padding:10px 24px;font-size:13px;font-weight:600;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer; }
+
+.tip-box { padding:12px 14px;margin-bottom:12px;border-left:3px solid var(--blue);background:var(--blue-light);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:13px;color:var(--blue-dark);line-height:1.6; }
+
+.bottom-bar { padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:0.5px solid var(--border);background:var(--bg);display:flex;gap:10px; }
+.btn-prev   { width:48px;height:52px;border-radius:var(--radius-sm);background:var(--bg2);border:none;cursor:pointer;font-size:18px;color:var(--text2);flex-shrink:0;display:flex;align-items:center;justify-content:center; }
+.btn-next   { flex:1;padding:14px;font-size:15px;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer; }
+.btn-next:active { opacity:0.85;transform:scale(0.98); }
+
+/* Done */
+.done { align-items:center;justify-content:center;text-align:center;padding:32px 24px; }
+.done-trophy { font-size:64px;margin-bottom:16px; }
+.done h2 { font-size:24px;font-weight:700;margin-bottom:8px; }
+.done p  { font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:28px; }
+.done-stats { display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:28px; }
+.stat-card  { background:var(--bg2);border-radius:var(--radius-sm);padding:14px; }
+.stat-num   { font-size:24px;font-weight:700;color:var(--blue); }
+.stat-label { font-size:11px;color:var(--text2);margin-top:2px; }
+.btn-restart { width:100%;padding:16px;font-size:15px;font-weight:600;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="home-icon">🔥</div>
+    <div class="home-title">Abs</div>
+    <div class="home-sub">Hollow body · compression · planche prep</div>
+  </div>
+  <div class="level-section">
+    <div class="level-label">Choose your level</div>
+    <div class="level-pills">
+      <div class="level-pill" id="pill-0" onclick="setLevel(0)"><span class="level-pill-name">Beginner</span><span class="level-pill-dur">20s holds</span></div>
+      <div class="level-pill active" id="pill-1" onclick="setLevel(1)"><span class="level-pill-name">Intermediate</span><span class="level-pill-dur">35s holds</span></div>
+      <div class="level-pill" id="pill-2" onclick="setLevel(2)"><span class="level-pill-name">Advanced</span><span class="level-pill-dur">50s holds</span></div>
+    </div>
+    <div class="level-meta" id="level-meta">2 rounds · ~14 min · 20s rest between exercises</div>
+  </div>
+  <div class="ex-list-section">
+    <div class="section-heading">Exercises</div>
+    <div id="home-ex-list"></div>
+  </div>
+  <button class="btn-start" onclick="startSession()">Start session</button>
+</div>
+
+<!-- TRAINING -->
+<div class="screen" id="screen-training">
+  <div class="nav-header">
+    <button class="btn-back" onclick="goHome()">←</button>
+    <span class="nav-pill" id="nav-pill"></span>
+    <span class="nav-title" id="nav-title"></span>
+    <span class="nav-count" id="nav-count"></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="content" id="content"></div>
+  <div class="bottom-bar">
+    <button class="btn-prev" id="btn-prev" onclick="prevStep()">←</button>
+    <button class="btn-next" id="btn-next" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="screen" id="screen-done">
+  <div class="done">
+    <div class="done-trophy">🏆</div>
+    <h2>Session complete!</h2>
+    <p>Good work. Rest tomorrow — your core needs 48h to recover properly.</p>
+    <div class="done-stats">
+      <div class="stat-card"><div class="stat-num" id="done-exercises">0</div><div class="stat-label">Exercises</div></div>
+      <div class="stat-card"><div class="stat-num" id="done-rounds">2</div><div class="stat-label">Rounds</div></div>
+      <div class="stat-card"><div class="stat-num" id="done-hold">35s</div><div class="stat-label">Hold time</div></div>
+      <div class="stat-card"><div class="stat-num" id="done-date">—</div><div class="stat-label">Date</div></div>
+    </div>
+    <button class="btn-restart" onclick="goHome()">Back to home</button>
+  </div>
+</div>
+
+<script>
+const IMAGES = {
+  'Hollow Body Hold': 'images/ex-hollow-body-hold.jpg',
+  '90° Hollow':       'images/ex-hollow-90.jpg',
+  'Hollow Plank':     'images/ex-hollow-plank.jpg',
+  'Planche Lean':     'images/ex-planche-lean.jpg',
+  'Tuck Sit':         'images/ex-tuck-sit.jpg',
+  'Pike Lean':        'images/ex-pike-lean.jpg',
+  'Pike Hold':        'images/ex-pike-hold.jpg',
+  'Hanging Hold':     'images/ex-hanging-hold.jpg',
+  'L-sit':            'images/ex-l-sit.jpg',
+  'Dragon Flag':      'images/ex-dragon-flag.jpg',
+};
+
+/* ── DATA ──────────────────────────────────────────── */
+const LEVELS = [
+  { name:'Beginner',     hold:20, meta:'2 rounds · ~10 min · 20s rest between exercises' },
+  { name:'Intermediate', hold:35, meta:'2 rounds · ~14 min · 20s rest between exercises' },
+  { name:'Advanced',     hold:50, meta:'2 rounds · ~18 min · 20s rest between exercises' },
+];
+
+const EXERCISES = [
+  { name:'Hollow Body Hold',  equipment:'Floor',
+    detail:'Lie on your back, arms overhead, legs straight and lifted ~30cm. Press your lower back firmly into the floor — that contact is the cue. Squeeze your ribs down.',
+    tip:'If the lower back lifts, bend your knees. Rebuild lumbar contact first, then extend.' },
+  { name:'90° Hollow',        equipment:'Floor',
+    detail:'Same hollow position but legs bent at 90°, shins parallel to the floor, arms extended forward. Lumbar stays pressed. The angle reduces the lever — use it to nail the rib compression.',
+    tip:'Think "pull ribs toward hips", not "crunch". Totally different sensation.' },
+  { name:'Hollow Plank',      equipment:'Floor',
+    detail:'Plank position with hollow body tension: posterior pelvic tilt, ribs drawn in, slight upper back rounding. Not a military plank — actively compressed. Wrists under shoulders.',
+    tip:'Push the floor away. The serratus fires and locks the scapula — key for planche prep.' },
+  { name:'Planche Lean',      equipment:'Floor',
+    detail:'From plank, shift shoulders forward past wrists. Keep body rigid: hollow tension, glutes squeezed, toes pointed. Start small (5–10° lean) and build.',
+    tip:'The hollow body and the lean are one position, not two. This is the direct planche prerequisite.' },
+  { name:'Tuck Sit',          equipment:'Floor / Parallels',
+    detail:'Seated, hands on floor or parallel bars, knees drawn to chest. Press down through straight arms, depress the scapulae. Try to lift your hips off the ground.',
+    tip:'Parallel bars make this far more accessible. Priority: straight arms, depressed shoulders.' },
+  { name:'Pike Lean',         equipment:'Floor',
+    detail:'Hands on floor, legs straight behind you — inverted V with a forward lean. Hold the tension in the hip flexors and lower abs. Body is active, not passive.',
+    tip:'The hip crease compression is the target. Don\'t collapse — stay active through the hip flexors.' },
+  { name:'Pike Hold',         equipment:'Elevated surface',
+    detail:'Feet on a chair or bench, hands on the floor. Body folds deeply at the hip. The higher the surface, the harder. Arms straight, scapulae depressed.',
+    tip:'This bridges hollow body work and handstand prep. The shoulder position is identical.' },
+  { name:'Hanging Hold',      equipment:'Pull-up bar',
+    detail:'Hang from a bar with a tuck (knees to chest). Active compression — don\'t just hang, squeeze the hip flexors and draw knees toward chest against gravity.',
+    tip:'Tuck first. When you hold 30s+ easily, extend one leg at a time toward an L-sit.' },
+  { name:'L-sit',             equipment:'Parallels / Floor',
+    detail:'Hands on parallel bars or floor, legs straight and parallel to the ground. Arms locked, scapulae depressed. The goal position: compression + straight legs + full bodyweight.',
+    tip:'Tuck sit is the prerequisite. One-leg L-sit is the bridge. Don\'t rush the progression.' },
+  { name:'Dragon Flag',       equipment:'Bench',
+    detail:'Lying on a bench, grip behind your head. Raise your entire body into a straight hollow-body line, supported only at the shoulders. Hold or do slow 5–8s negatives.',
+    tip:'Tuck dragon flag first. The straight version demands extreme hollow body strength — earn it.' },
+];
+
+/* ── STATE ─────────────────────────────────────────── */
+let levelIdx = 1, stepIdx = 0, showRest = false;
+let timerSec = 0, timerRunning = false, timerInterval = null;
+let restSec  = 0, restRunning  = false, restInterval  = null;
+const ROUNDS = 2, REST_SECS = 20;
+
+function buildSequence() {
+  const seq = [];
+  for (let r = 0; r < ROUNDS; r++) {
+    if (r > 0) seq.push({ type:'roundbreak', round:r+1 });
+    for (let i = 0; i < EXERCISES.length; i++) seq.push({ type:'exercise', round:r+1, exIdx:i });
+  }
+  return seq;
+}
+let sequence = [];
+
+/* ── HELPERS ────────────────────────────────────────── */
+function pad(n)  { return String(Math.round(n)).padStart(2,'0'); }
+function fmt(s)  { return pad(Math.floor(s/60))+':'+pad(s%60); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); }
+function clearTimers()  { clearInterval(timerInterval); timerRunning=false; clearInterval(restInterval); restRunning=false; }
+
+/* ── LEVEL ──────────────────────────────────────────── */
+function setLevel(idx) {
+  levelIdx = idx;
+  document.querySelectorAll('.level-pill').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.getElementById('level-meta').textContent = LEVELS[idx].meta;
+}
+
+/* ── HOME ───────────────────────────────────────────── */
+function buildHomeList() {
+  document.getElementById('home-ex-list').innerHTML = EXERCISES.map(ex=>`
+    <div class="ex-row">
+      <div class="ex-row-dot"></div>
+      <div class="ex-row-name">${ex.name}</div>
+      <div class="eq-badge">${ex.equipment.split(' / ')[0]}</div>
+    </div>`).join('');
+}
+
+/* ── SESSION ────────────────────────────────────────── */
+function startSession() {
+  sequence=buildSequence(); stepIdx=0; showRest=false;
+  clearTimers(); showScreen('training'); renderStep();
+}
+function goHome() { clearTimers(); showRest=false; showScreen('home'); }
+
+/* ── NAVIGATION ─────────────────────────────────────── */
+function nextStep() {
+  const step = sequence[stepIdx];
+  if (step.type==='exercise' && !showRest && stepIdx < sequence.length-1) {
+    clearTimers(); showRest=true;
+    const ns = sequence[stepIdx+1];
+    const nextName = ns.type==='exercise' ? EXERCISES[ns.exIdx].name : 'Round '+ns.round;
+    startRest(REST_SECS, nextName);
+    renderStep(); return;
+  }
+  clearTimers(); showRest=false;
+  if (stepIdx >= sequence.length-1) { finishSession(); return; }
+  stepIdx++;
+  const ns = sequence[stepIdx];
+  if (ns.type==='roundbreak') { renderStep(); return; }
+  timerSec = LEVELS[levelIdx].hold;
+  renderStep();
+}
+function prevStep() {
+  clearTimers(); showRest=false;
+  if (stepIdx>0) stepIdx--;
+  const s=sequence[stepIdx];
+  timerSec = s.type==='exercise' ? LEVELS[levelIdx].hold : 0;
+  renderStep();
+}
+
+/* ── REST ───────────────────────────────────────────── */
+function startRest(secs) {
+  restSec=secs; restRunning=true; clearInterval(restInterval);
+  restInterval=setInterval(()=>{
+    if (restSec>0) { restSec--; const d=document.getElementById('rest-display'); if(d) d.textContent=fmt(restSec); updateRestRing(); }
+    else { clearInterval(restInterval); restRunning=false; skipRest(); }
+  },1000);
+}
+function skipRest() {
+  clearInterval(restInterval); restRunning=false; showRest=false;
+  stepIdx++;
+  if (stepIdx>=sequence.length) { finishSession(); return; }
+  timerSec = sequence[stepIdx].type==='exercise' ? LEVELS[levelIdx].hold : 0;
+  renderStep();
+}
+function updateRestRing() {
+  const c=document.getElementById('rest-ring-arc'); if(!c) return;
+  const r=68, circ=2*Math.PI*r;
+  c.setAttribute('stroke-dashoffset',(circ*restSec/REST_SECS).toFixed(1));
+}
+
+/* ── EXERCISE TIMER ─────────────────────────────────── */
+function toggleTimer() {
+  if (timerRunning) { clearInterval(timerInterval); timerRunning=false; }
+  else {
+    timerRunning=true;
+    timerInterval=setInterval(()=>{
+      if (timerSec>0) { timerSec--; updateTimerUI(); }
+      else { clearInterval(timerInterval); timerRunning=false; const b=document.getElementById('t-go'); if(b){b.textContent='Done!';b.disabled=true;} }
+    },1000);
+  }
+  const b=document.getElementById('t-go'); if(b) b.textContent=timerRunning?'Pause':'Start';
+}
+function resetTimer() {
+  clearInterval(timerInterval); timerRunning=false;
+  timerSec=LEVELS[levelIdx].hold; updateTimerUI();
+  const b=document.getElementById('t-go'); if(b){b.textContent='Start';b.disabled=false;}
+}
+function updateTimerUI() {
+  const d=document.getElementById('t-display'); if(d) d.textContent=timerSec;
+  const arc=document.getElementById('timer-ring-arc'); if(!arc) return;
+  const r=52, circ=2*Math.PI*r;
+  arc.setAttribute('stroke-dashoffset',(circ*timerSec/LEVELS[levelIdx].hold).toFixed(1));
+}
+
+/* ── RENDER ─────────────────────────────────────────── */
+function renderStep() {
+  const step=sequence[stepIdx];
+  const total=sequence.filter(s=>s.type==='exercise').length;
+  const done=sequence.slice(0,stepIdx).filter(s=>s.type==='exercise').length;
+  document.getElementById('prog-fill').style.width=Math.round(done/total*100)+'%';
+  document.getElementById('btn-prev').style.visibility=stepIdx===0?'hidden':'visible';
+
+  const pillEl=document.getElementById('nav-pill');
+  if (step.type==='roundbreak') {
+    pillEl.textContent='Rest'; document.getElementById('nav-title').textContent='Between rounds'; document.getElementById('nav-count').textContent='';
+  } else if (showRest) {
+    pillEl.textContent='Round '+step.round; document.getElementById('nav-title').textContent='Rest'; document.getElementById('nav-count').textContent=(step.exIdx+1)+'/'+EXERCISES.length;
+  } else {
+    pillEl.textContent='Round '+step.round; document.getElementById('nav-title').textContent=EXERCISES[step.exIdx].name; document.getElementById('nav-count').textContent=(step.exIdx+1)+'/'+EXERCISES.length;
+  }
+
+  if (showRest) { renderRestScreen(); document.getElementById('btn-next').textContent='Skip rest'; document.getElementById('btn-next').onclick=skipRest; return; }
+  document.getElementById('btn-next').onclick=nextStep;
+  if (step.type==='roundbreak') { renderRoundBreak(step.round); document.getElementById('btn-next').textContent='Start round '+step.round+' →'; return; }
+
+  const ex=EXERCISES[step.exIdx];
+  const hold=LEVELS[levelIdx].hold;
+  const r=52, circ=(2*Math.PI*r).toFixed(1);
+  const isLast=stepIdx===sequence.length-1;
+  document.getElementById('btn-next').textContent=isLast?'Finish session 🏁':'Done → Rest';
+  if (!timerSec) timerSec=hold;
+
+  const imgSrc = IMAGES[ex.name];
+  const illustHtml = imgSrc
+    ? `<div class="ex-illustration"><img src="${imgSrc}" alt="${ex.name}"></div>`
+    : '';
+
+  document.getElementById('content').innerHTML=`
+    <div class="ex-card">
+      ${illustHtml}
+      <div class="ex-card-body">
+        <div class="ex-num">Exercise ${step.exIdx+1} of ${EXERCISES.length} · Round ${step.round}</div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-badges">
+          <span class="badge badge-eq">📍 ${ex.equipment}</span>
+          <span class="badge badge-sets">${hold}s hold × ${ROUNDS} rounds</span>
+        </div>
+        <div class="ex-detail">${ex.detail}</div>
+        <div class="ring-section">
+          <div class="ring-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+              <circle id="timer-ring-arc" cx="60" cy="60" r="${r}" fill="none"
+                stroke="var(--blue)" stroke-width="8"
+                stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+                stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            </svg>
+            <div class="ring-inner">
+              <div class="ring-num" id="t-display">${timerSec}</div>
+              <div class="ring-sub">seconds</div>
+            </div>
+          </div>
+          <div class="ring-buttons">
+            <button class="btn-ring" onclick="resetTimer()">Reset</button>
+            <button class="btn-ring go" id="t-go" onclick="toggleTimer()">Start</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${ex.tip?`<div class="tip-box">💡 ${ex.tip}</div>`:''}
+  `;
+  updateTimerUI();
+}
+
+function renderRestScreen() {
+  const r=68, circ=(2*Math.PI*r).toFixed(1), off=(circ*restSec/REST_SECS).toFixed(1);
+  const ns=sequence[stepIdx+1];
+  const nextName=ns ? (ns.type==='exercise'?EXERCISES[ns.exIdx].name:'Round '+ns.round) : 'Session complete';
+  document.getElementById('content').innerHTML=`
+    <div class="rest-screen">
+      <div class="rest-label">Rest</div>
+      <div class="rest-ring-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="${r}" fill="none" stroke="var(--bg3)" stroke-width="10"/>
+          <circle id="rest-ring-arc" cx="80" cy="80" r="${r}" fill="none"
+            stroke="var(--blue-mid)" stroke-width="10"
+            stroke-dasharray="${circ}" stroke-dashoffset="${off}"
+            stroke-linecap="round" transform="rotate(-90 80 80)"/>
+        </svg>
+        <div class="rest-ring-inner">
+          <div class="rest-num" id="rest-display">${fmt(restSec)}</div>
+          <div class="rest-num-sub">seconds</div>
+        </div>
+      </div>
+      <div class="rest-caption">Breathe. Relax the neck.</div>
+      <div class="rest-next-label">Next up</div>
+      <div class="rest-next-name">${nextName}</div>
+      <button class="btn-skip" onclick="skipRest()">Skip rest</button>
+    </div>`;
+}
+
+function renderRoundBreak(round) {
+  document.getElementById('content').innerHTML=`
+    <div class="rest-screen">
+      <div class="rest-label">Round ${round-1} complete</div>
+      <div style="font-size:52px;margin-bottom:12px;">💪</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">Halfway there</div>
+      <div style="font-size:15px;color:var(--text2);text-align:center;line-height:1.6;max-width:280px;margin-bottom:28px;">Take 60 seconds. Shake out your arms, breathe deep. Round ${round} is identical.</div>
+      <div class="rest-next-label">Up next</div>
+      <div class="rest-next-name">Round ${round} — ${EXERCISES[0].name}</div>
+    </div>`;
+}
+
+function finishSession() {
+  clearTimers();
+  const now=new Date();
+  document.getElementById('done-exercises').textContent=EXERCISES.length;
+  document.getElementById('done-rounds').textContent=ROUNDS;
+  document.getElementById('done-hold').textContent=LEVELS[levelIdx].hold+'s';
+  document.getElementById('done-date').textContent=now.getDate()+'/'+(now.getMonth()+1);
+  showScreen('done');
+}
+
+buildHomeList();
+</script>
+</body>
+</html>
