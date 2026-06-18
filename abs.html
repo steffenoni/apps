@@ -347,8 +347,8 @@ function prevStep() {
 function startRest(secs) {
   restSec=secs; restRunning=true; clearInterval(restInterval);
   restInterval=setInterval(()=>{
-    if (restSec>0) { restSec--; const d=document.getElementById('rest-display'); if(d) d.textContent=fmt(restSec); updateRestRing(); }
-    else { clearInterval(restInterval); restRunning=false; skipRest(); }
+    if (restSec>0) { restSec--; const d=document.getElementById('rest-display'); if(d) d.textContent=fmt(restSec); updateRestRing(); if(restSec<=3 && restSec>0) beepCountdown(); }
+    else { clearInterval(restInterval); restRunning=false; beepRestDone(); setTimeout(()=>skipRest(), 400); }
   },1000);
 }
 function skipRest() {
@@ -364,14 +364,50 @@ function updateRestRing() {
   c.setAttribute('stroke-dashoffset',(circ*restSec/REST_SECS).toFixed(1));
 }
 
+/* ── AUDIO ───────────────────────────────────────────── */
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq, dur, vol) {
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+function beepCountdown() { beep(880, 0.12, 0.4); }
+function beepDone() {
+  beep(523, 0.15, 0.5);
+  setTimeout(()=>beep(659, 0.15, 0.5), 160);
+  setTimeout(()=>beep(784, 0.3,  0.5), 320);
+}
+function beepRestDone() { beep(784, 0.2, 0.4); setTimeout(()=>beep(784, 0.2, 0.4), 220); }
+
 /* ── EXERCISE TIMER ─────────────────────────────────── */
 function toggleTimer() {
   if (timerRunning) { clearInterval(timerInterval); timerRunning=false; }
   else {
+    getAudio();
     timerRunning=true;
     timerInterval=setInterval(()=>{
-      if (timerSec>0) { timerSec--; updateTimerUI(); }
-      else { clearInterval(timerInterval); timerRunning=false; const b=document.getElementById('t-go'); if(b){b.textContent='Done!';b.disabled=true;} }
+      if (timerSec>0) {
+        timerSec--;
+        if (timerSec<=3 && timerSec>0) beepCountdown();
+        updateTimerUI();
+      } else {
+        clearInterval(timerInterval); timerRunning=false;
+        beepDone();
+        setTimeout(()=>nextStep(), 600);
+      }
     },1000);
   }
   const b=document.getElementById('t-go'); if(b) b.textContent=timerRunning?'Pause':'Start';
