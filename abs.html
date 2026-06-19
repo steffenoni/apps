@@ -93,16 +93,16 @@ body {
 /* Exercise illustration */
 .ex-illustration {
   width:100%;
+  max-height:60vh;
   background:var(--blue-light);
   border-radius:var(--radius) var(--radius) 0 0;
   overflow:hidden;
-  aspect-ratio:16/9;
   display:flex;align-items:center;justify-content:center;
 }
 .ex-illustration img {
-  width:100%;height:100%;
-  object-fit:cover;
-  object-position:center top;
+  width:100%;height:auto;
+  max-height:60vh;
+  object-fit:contain;
   display:block;
 }
 
@@ -484,7 +484,7 @@ function renderStep() {
           </div>
           <div class="ring-buttons">
             <button class="btn-ring" onclick="resetTimer()">Reset</button>
-            <button class="btn-ring go" id="t-go" onclick="toggleTimer()">Start</button>
+            <button class="btn-ring go" id="t-go" onclick="toggleTimer()">Pause</button>
           </div>
         </div>
       </div>
@@ -492,6 +492,7 @@ function renderStep() {
     ${ex.tip?`<div class="tip-box">💡 ${ex.tip}</div>`:''}
   `;
   updateTimerUI();
+  if (!timerRunning) toggleTimer();
 }
 
 function renderRestScreen() {

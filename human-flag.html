@@ -540,6 +540,8 @@ function renderTraining() {
     ${restHTML}
     ${showTip ? `<div class="tip-box">💡 ${phase.tip}</div>` : ""}
   `;
+
+  if (ex.timer && !showRest && !timerRunning) toggleTimer();
 }
 
 buildHome();
